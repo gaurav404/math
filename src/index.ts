@@ -1,2 +1,2 @@
 export {morningGreet} from './morningGreet';
-export {eveningGreet} from './eveningGreet';
+export {eveningGreet, afternoonGreet} from './eveningGreet';
