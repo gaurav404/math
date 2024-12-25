@@ -1,6 +1,5 @@
 module.exports = {
     branches: [
-      'major',
       {
         name: 'main',
         prerelease: true
