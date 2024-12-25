@@ -1,0 +1,44 @@
+name: Deploy to npm and Auto Version Bump
+
+on:
+  push:
+    branches:
+      - main
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GIT_WRITE_PAT }}
+
+      - name: Use NodeJS 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: |
+          npm ci --include=dev
+
+      - name: Build Package
+        run: |
+          export NODE_OPTIONS="--max-old-space-size=4096"
+          npm run build
+      - name: Authenticate with private NPM package
+        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.MY_NPM_TOKEN }}" > ~/.npmrc
+
+      - name: Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.MY_NPM_TOKEN }}
+        run: |
+          git config --global user.name "gaurav404"
+          git config --global user.email "gaurav.agarwala19@gmail.com"
+          npx semantic-release
